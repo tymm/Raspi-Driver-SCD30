@@ -22,7 +22,7 @@ You might need to run the following commands as root e.g. by typing `sudo` befor
 Install the following python-libraries:
 
 ```
-aptitude install python-crcmod
+apt install python3-crcmod
 ```
 
 ### Pigpiod
@@ -30,7 +30,9 @@ aptitude install python-crcmod
 As the SCD30 needs complex i2c-commands, the Linux standard i2c-dev doesn't work. A working alternative is pigpiod.
 
 ```
-aptitude install pigpio python-pigpio
+apt install pigpio python3-pigpio i2c-tools
+systemctl enable pigpiod.service
+systemctl start pigpiod.service
 ```
 
 Atm, IPv6 doesn't work on Raspbian correctly with pigpiod, so:
@@ -58,10 +60,16 @@ gcc -o i2c1_set_clkt_tout i2c1_set_clkt_tout.c
 gcc -o i2c1_get_clkt_tout i2c1_get_clkt_tout.c
 ```
 
+Move to `/usr/local/bin`:
+```
+cp i2c1_set_clkt_tout /usr/local/bin/
+cp i2c1_get_clkt_tout /usr/local/bin/
+```
+
 execute (add to /etc/rc.local to run on every boot):
 
 ```
-./i2c1_set_clkt_tout 20000 # for 200ms
+/usr/local/bin/i2c1_set_clkt_tout 20000 # for 200ms
 ```
 
 Remember: Maximum I2C speed for SCD30 is 100kHz.
@@ -71,10 +79,10 @@ Remember: Maximum I2C speed for SCD30 is 100kHz.
 You might need to run the following as root e.g. by typing `sudo` before running the script.
 
 ```
-python scd30.py
+python3 scd30.py
 ```
 
-## installing as a service
+## Installing as a service
 
 ```
 cp scd30.py /usr/local/bin
@@ -83,7 +91,7 @@ cp scd30.service /etc/systemd/system/
 systemctl enable scd30.service
 systemctl start scd30.service
 ```
-the service writes a file /run/scd30 (which resides in RAM) - it is meant to be read out by prometheus.
+the service writes a file /run/sensors/scd30/last (which resides in RAM) - it is meant to be read out by prometheus.
 
 
 ## Todos
